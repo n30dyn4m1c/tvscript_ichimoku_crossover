@@ -1,0 +1,29 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © n30dyn4m1c
+
+//@version=5
+indicator("Ichimoku Current Chikou vs Senkou Span B (52 Periods Ago)", overlay=true)
+
+// Input parameters for Ichimoku
+senkouSpanBPeriod = input(52, title="Senkou Span B Period")
+chikouSpanPeriod = input(26, title="Chikou Span Period")
+
+// Calculate Ichimoku elements
+senkouSpanB = (ta.highest(high, senkouSpanBPeriod) + ta.lowest(low, senkouSpanBPeriod)) / 2
+chikouSpan = close
+
+// Plot Ichimoku elements
+plot(chikouSpan, color=color.green, title="Chikou Span", offset=-chikouSpanPeriod)  // Chikou Span 26 periods back
+plot(senkouSpanB, color=color.red, title="Senkou Span B", offset=26)               // Senkou Span B 26 periods ahead
+
+// Compare current Chikou Span with Senkou Span B from 52 periods ago
+bullishCross = ta.crossover(chikouSpan, senkouSpanB[52])  // Check if current Chikou Span crosses above Senkou Span B from 52 periods ago
+bearishCross = ta.crossunder(chikouSpan, senkouSpanB[52]) // Check if current Chikou Span crosses below Senkou Span B from 52 periods ago
+
+// Alert conditions
+alertcondition(bullishCross, title="Bullish Crossover Alert", message="Bullish crossover detected between current Chikou Span and Senkou Span B (52 periods ago).")
+alertcondition(bearishCross, title="Bearish Crossover Alert", message="Bearish crossover detected between current Chikou Span and Senkou Span B (52 periods ago).")
+
+// Plot labels at the current bar where crossover occurs
+plotshape(series=bullishCross, location=location.belowbar, color=color.green, style=shape.labelup, text="Buy")
+plotshape(series=bearishCross, location=location.abovebar, color=color.red, style=shape.labeldown, text="Sell")
